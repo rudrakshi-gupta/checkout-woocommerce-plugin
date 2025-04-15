@@ -3,8 +3,11 @@ jQuery( function ( $ ) {
 	var admin_functions = {
 
 		hidePaymentMethods: function () {
+			const classicCheckout = $( '[data-gateway_id="wc_checkout_com_cards"]' );
 			const applePay = $( '[data-gateway_id="wc_checkout_com_apple_pay"]' );
 			const googlePay = $( '[data-gateway_id="wc_checkout_com_google_pay"]' );
+			const payPal = $( '[data-gateway_id="wc_checkout_com_paypal"]' );
+			const flowPay = $( '[data-gateway_id="wc_checkout_com_flow"]' );
 			const alternativePay = $( '[data-gateway_id*="wc_checkout_com_alternative_payments"]' );
 
 			if ( applePay.length > 0 ) {
@@ -14,8 +17,18 @@ jQuery( function ( $ ) {
 				googlePay.hide();
 			}
 
+			if ( flowPay.length > 0 ) {
+				flowPay.hide();
+			}
+
 			if ( alternativePay.length > 0 ) {
 				alternativePay.hide();
+			}
+
+			if( cko_admin_vars.flow_enabled ) {
+				classicCheckout.hide();
+				payPal.hide();
+				flowPay.show();
 			}
 		},
 

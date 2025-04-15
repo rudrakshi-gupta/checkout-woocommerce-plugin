@@ -521,8 +521,13 @@ class WC_Gateway_Checkout_Com_PayPal extends WC_Payment_Gateway {
 	public function payment_scripts() {
 		$paypal_enabled = ! empty( $this->get_option( 'enabled' ) ) && 'yes' === $this->get_option( 'enabled' );
 
-		if ( ! $paypal_enabled ) {
-			return;
+		$checkout_setting = get_option( 'woocommerce_wc_checkout_com_cards_settings' );
+		$checkout_mode    = $checkout_setting['ckocom_checkout_mode'];
+
+		if ( $checkout_mode === 'classic' ) {
+			if ( ! $paypal_enabled ) {
+					return;
+			}
 		}
 
 		if ( ! empty( WC_Checkoutcom_Utility::cko_get_session( 'cko_pc_id' ) ) ) {

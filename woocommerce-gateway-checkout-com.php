@@ -59,6 +59,7 @@ function init_checkout_com_gateway_class() {
 	include_once 'includes/class-wc-gateway-checkout-com-google-pay.php';
 	include_once 'includes/class-wc-gateway-checkout-com-paypal.php';
 	include_once 'includes/class-wc-gateway-checkout-com-alternative-payments.php';
+	include_once 'flow-integration/class-wc-gateway-checkout-com-flow.php';
 
 	// Load payment gateway class.
 	add_filter( 'woocommerce_payment_gateways', 'checkout_com_add_gateway' );
@@ -80,6 +81,7 @@ function checkout_com_add_gateway( $methods ) {
 	$methods[] = 'WC_Gateway_Checkout_Com_Google_Pay';
 	$methods[] = 'WC_Gateway_Checkout_Com_PayPal';
 	$methods[] = 'WC_Gateway_Checkout_Com_Alternative_Payments';
+	$methods[] = 'WC_Gateway_Checkout_Com_Flow';
 
 	$methods = sizeof( $array ) > 0 ? array_merge( $methods, $array ) : $methods;
 
@@ -196,6 +198,15 @@ add_action( 'admin_enqueue_scripts', 'cko_admin_enqueue_scripts' );
  * @return void
  */
 function cko_admin_enqueue_scripts() {
+
+	$core_settings = get_option( 'woocommerce_wc_checkout_com_cards_settings' );
+	$checkout_mode = $core_settings['ckocom_checkout_mode'];
+	$flow_enabled  = false;
+
+	if( $checkout_mode === 'flow' ) {
+		$flow_enabled = true;
+	}
+
 	// Load admin scripts.
 	wp_enqueue_script( 'cko-admin-script', WC_CHECKOUTCOM_PLUGIN_URL . '/assets/js/admin.js', [ 'jquery' ], WC_CHECKOUTCOM_PLUGIN_VERSION );
 
@@ -208,6 +219,8 @@ function cko_admin_enqueue_scripts() {
 
 		'checkoutcom_check_webhook_nonce'    => wp_create_nonce( 'checkoutcom_check_webhook' ),
 		'checkoutcom_register_webhook_nonce' => wp_create_nonce( 'checkoutcom_register_webhook' ),
+
+		'flow_enabled'						 => $flow_enabled,
 	];
 
 	wp_localize_script( 'cko-admin-script', 'cko_admin_vars', $vars );
@@ -244,6 +257,76 @@ function callback_for_setting_up_scripts() {
 				wp_enqueue_script( 'cko-klarna-script', 'https://x.klarnacdn.net/kp/lib/v1/api.js', [ 'jquery' ] );
 			}
 		}
+	}
+
+	// Enqueue FLOW scripts.
+	$core_settings      = get_option( 'woocommerce_wc_checkout_com_cards_settings' );
+	$checkout_mode      = $core_settings['ckocom_checkout_mode'];
+	$flow_customization = get_option( 'woocommerce_wc_checkout_com_flow_settings' );
+
+	if ( 'flow' === $checkout_mode ) {
+		wp_enqueue_script(
+			'checkout-com-flow-script', 
+			'https://checkout-web-components.checkout.com/index.js', 
+			array(), 
+			null
+		);
+
+		wp_enqueue_script(
+			'flow-customization-script',
+			WC_CHECKOUTCOM_PLUGIN_URL . '/flow-integration/assets/js/flow-customization.js',
+			array(), 
+			WC_CHECKOUTCOM_PLUGIN_VERSION,
+			true 
+		);
+
+		wp_localize_script( 'flow-customization-script', 'cko_flow_customization_vars', $flow_customization );
+
+		wp_register_style( 'cko-flow-style', WC_CHECKOUTCOM_PLUGIN_URL . '/flow-integration/assets/css/flow.css', array(), WC_CHECKOUTCOM_PLUGIN_VERSION );
+		wp_enqueue_style( 'cko-flow-style' );
+
+		wp_enqueue_script(
+			'checkout-com-flow-container-script', 
+			WC_CHECKOUTCOM_PLUGIN_URL . '/flow-integration/assets/js/flow-container.js', 
+			array( 'jquery' ), 
+			WC_CHECKOUTCOM_PLUGIN_VERSION,
+		);
+
+		wp_enqueue_script(
+			'checkout-com-flow-payment-session-script', 
+			WC_CHECKOUTCOM_PLUGIN_URL . '/flow-integration/assets/js/payment-session.js', 
+			array( 'jquery', 'flow-customization-script', 'checkout-com-flow-container-script', 'wp-i18n' ), 
+			WC_CHECKOUTCOM_PLUGIN_VERSION,
+		);
+
+		$url = 'https://api.checkout.com/payment-sessions';
+
+		if ( 'sandbox' === $core_settings['ckocom_environment'] ) {
+			$url = 'https://api.sandbox.checkout.com/payment-sessions';
+		}
+
+		if ( class_exists( 'WooCommerce' ) ) {
+			global $woocommerce;
+			$woo_version = isset( $woocommerce ) ? $woocommerce->version : null;
+		} else {
+			$woo_version = null;
+		}
+
+		$flow_vars = array(
+			'checkoutSlug' => get_post_field( 'post_name', get_option( 'woocommerce_checkout_page_id' ) ),
+			'apiURL'       => $url,
+			'SKey'         => $core_settings['ckocom_sk'],
+			'PKey'         => $core_settings['ckocom_pk'],
+			'env'          => $core_settings['ckocom_environment'],
+			'ajax_url'     => admin_url( 'admin-ajax.php' ),
+			'woo_version'  => $woo_version,
+			'ref_session'  => is_array( WC()->session->get_session_cookie() ) ? WC()->session->get_session_cookie()[3] : '',
+			'async_url'    => '/wp-json/ckoplugin/v1/payment-status',
+		);
+
+		wp_set_script_translations( 'checkout-com-flow-payment-session-script', 'checkout-com-unified-payments-api' );
+
+		wp_localize_script( 'checkout-com-flow-payment-session-script', 'cko_flow_vars', $flow_vars );
 	}
 }
 
@@ -589,4 +672,125 @@ function cko_set_query_vars( $wp ) {
 	if ( ! empty( $wp->query_vars['cko-callback'] ) ) {
 		$wp->set_query_var( 'wc-api', 'wc_checkoutcom_callback' );
 	}
+}
+
+add_action( 'wp_ajax_cko_validate_checkout', 'cko_validate_checkout' );
+add_action( 'wp_ajax_nopriv_cko_validate_checkout', 'cko_validate_checkout' );
+
+/**
+ * Validates the WooCommerce checkout form via AJAX.
+ */
+function cko_validate_checkout() {
+	// Load WooCommerce checkout class.
+	$checkout = WC()->checkout();
+
+	// Validate nonce.
+	$nonce_value = wc_get_var( $_REQUEST['woocommerce-process-checkout-nonce'], wc_get_var( $_REQUEST['_wpnonce'], '' ) ); // phpcs:ignore
+	if ( empty( $nonce_value ) || ! wp_verify_nonce( $nonce_value, 'woocommerce-process_checkout' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Session expired. Please refresh.', 'woocommerce' ) ) );
+	}
+
+	// Pre-check actions.
+	do_action( 'woocommerce_before_checkout_process' );
+	do_action( 'woocommerce_checkout_process' );
+
+	// Get posted data and prepare for validation.
+	$posted_data = $checkout->get_posted_data();
+	try {
+		// Use Reflection to call the protected update_session method.
+		$reflection1 = new ReflectionClass( $checkout );
+		$method      = $reflection1->getMethod( 'update_session' );
+		$method->setAccessible( true );
+		$method->invoke( $checkout, $posted_data );
+	} catch ( ReflectionException $e ) {
+		wp_send_json_error( array( 'message' => __( 'Could not access checkout update method.', 'checkout-com-unified-payments-api' ) ) );
+	}
+
+	$errors = new WP_Error();
+
+	try {
+		// Use Reflection to call the protected validate_checkout method.
+		$reflection2 = new ReflectionClass( $checkout );
+		$method      = $reflection2->getMethod( 'validate_checkout' );
+		$method->setAccessible( true );
+		$method->invokeArgs( $checkout, array( &$posted_data, &$errors ) );
+	} catch ( ReflectionException $e ) {
+		wp_send_json_error( array( 'message' => __( 'Could not access checkout validate method.', 'checkout-com-unified-payments-api' ) ) );
+	}
+
+	// If any validation errors occurred, send them back as an error response.
+	if ( ! empty( $errors->errors ) ) {
+		$messages = array();
+		foreach ( $errors->errors as $code => $msgs ) {
+			foreach ( $msgs as $msg ) {
+				$messages[] = $msg;
+			}
+		}
+		wp_send_json_error( array( 'message' => implode( "\n", $messages ) ) );
+	}
+
+	// If everything passed, return success.
+	wp_send_json_success( array( 'message' => __( 'Validation successful', 'checkout-com-unified-payments-api' ) ) );
+}
+
+/**
+ * Register a custom REST API route for checking payment status.
+ */
+add_action(
+	'rest_api_init',
+	function () {
+		register_rest_route(
+			'ckoplugin/v1',
+			'/payment-status',
+			array(
+				'methods'             => 'GET',
+				'callback'            => 'cko_get_payment_status',
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
+);
+
+/**
+ * Callback function to get payment status from Checkout.com API.
+ *
+ * @param WP_REST_Request $request The REST API request object.
+ * @return WP_REST_Response JSON response with payment status or error.
+ */
+function cko_get_payment_status( $request ) {
+	$payment_id    = sanitize_text_field( $request->get_param( 'paymentId' ) );
+	$core_settings = get_option( 'woocommerce_wc_checkout_com_cards_settings' );
+	$env           = $core_settings['ckocom_environment'];
+	$secret_key    = $core_settings['ckocom_sk'];
+
+	if ( empty( $payment_id ) ) {
+		return new WP_REST_Response( array( 'error' => 'Missing paymentId' ), 400 );
+	}
+
+	$url = "https://api.checkout.com/payments/{$payment_id}";
+
+	if ( 'sandbox' === $env ) {
+		$url = "https://api.sandbox.checkout.com/payments/{$payment_id}";
+	}
+
+	// Send the GET request to Checkout.com.
+	$response = wp_remote_get(
+		$url,
+		array(
+			'headers' => array(
+				'Authorization' => "Bearer $secret_key",
+				'Content-Type'  => 'application/json',
+			),
+		)
+	);
+
+	if ( is_wp_error( $response ) ) {
+		return new WP_REST_Response( array( 'error' => $response->get_error_message() ), 500 );
+	}
+
+	$code = wp_remote_retrieve_response_code( $response );
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	// Return API response.
+	return new WP_REST_Response( $body, $code );
 }

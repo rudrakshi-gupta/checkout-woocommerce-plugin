@@ -84,6 +84,13 @@ class WC_Checkoutcom_Cards_Settings {
 			$docs_link = $nas_docs;
 		}
 
+		$checkout_mode           = $core_settings['ckocom_checkout_mode'];
+		$should_disable_checkbox = false;
+				
+		if ( 'flow' === $checkout_mode ) {
+			$should_disable_checkbox = true;
+		}
+
 		$settings = [
 			'core_setting'        => [
 				'title'       => __( 'Core settings', 'checkout-com-unified-payments-api' ),
@@ -91,13 +98,25 @@ class WC_Checkoutcom_Cards_Settings {
 				'description' => '',
 			],
 			'enabled'             => [
-				'id'          => 'enable',
-				'title'       => __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
-				'type'        => 'checkbox',
-				'label'       => __( 'Enable Checkout.com cards payment', 'checkout-com-unified-payments-api' ),
-				'description' => __( 'This enables Checkout.com. cards payment', 'checkout-com-unified-payments-api' ),
+				'id'          		=> 'enable',
+				'title'       		=> __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
+				'type'        		=> 'checkbox',
+				'label'       		=> __( 'Enable Checkout.com cards payment', 'checkout-com-unified-payments-api' ),
+				'description' 		=> __( 'This enables Checkout.com. cards payment', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    		=> true,
+				'default'     		=> 'yes',
+				'custom_attributes' => $should_disable_checkbox ? [ 'disabled' => 'disabled' ] : [],
+			],
+			'ckocom_checkout_mode' => [
+				'title'       => __( 'Checkout Mode', 'checkout-com-unified-payments-api' ),
+				'type'        => 'select',
+				'description' => __( 'Select the checkout mode for payment processing.', 'checkout-com-unified-payments-api' ),
 				'desc_tip'    => true,
-				'default'     => 'yes',
+				'options'     => [
+					'classic' => __( 'Classic', 'checkout-com-unified-payments-api' ),
+					'flow'    => __( 'Flow', 'checkout-com-unified-payments-api' ),
+				],
+				'default'     => 'classic',
 			],
 			'ckocom_region'       => [
 				'title'       => __( 'Region', 'checkout-com-unified-payments-api' ),
@@ -495,6 +514,13 @@ class WC_Checkoutcom_Cards_Settings {
 			$docs_link = $nas_docs;
 		}
 
+		$checkout_mode           = $core_settings['ckocom_checkout_mode'];
+		$should_disable_checkbox = false;
+				
+		if ( 'flow' === $checkout_mode ) {
+			$should_disable_checkbox = true;
+		}
+
 		$settings = [
 			'core_setting'             => [
 				'title'       => __( 'Apple Pay settings', 'checkout-com-unified-payments-api' ),
@@ -502,13 +528,14 @@ class WC_Checkoutcom_Cards_Settings {
 				'description' => '',
 			],
 			'enabled'                  => [
-				'id'          => 'enable',
-				'title'       => __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
-				'type'        => 'checkbox',
-				'label'       => __( 'Enable Checkout.com', 'checkout-com-unified-payments-api' ),
-				'description' => __( 'This enables Checkout.com. cards payment', 'checkout-com-unified-payments-api' ),
-				'desc_tip'    => true,
-				'default'     => 'yes',
+				'id'          		=> 'enable',
+				'title'       		=> __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
+				'type'        		=> 'checkbox',
+				'label'       		=> __( 'Enable Checkout.com', 'checkout-com-unified-payments-api' ),
+				'description' 		=> __( 'This enables Checkout.com. cards payment', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    		=> true,
+				'default'     		=> 'yes',
+				'custom_attributes' => $should_disable_checkbox ? [ 'disabled' => 'disabled' ] : [],
 			],
 			'title'                    => [
 				'title'       => __( 'Title', 'checkout-com-unified-payments-api' ),
@@ -592,6 +619,15 @@ class WC_Checkoutcom_Cards_Settings {
 	 * @return mixed|void
 	 */
 	public static function google_settings() {
+		$core_settings = get_option( 'woocommerce_wc_checkout_com_cards_settings' );
+
+		$checkout_mode           = $core_settings['ckocom_checkout_mode'];
+		$should_disable_checkbox = false;
+				
+		if ( 'flow' === $checkout_mode ) {
+			$should_disable_checkbox = true;
+		}
+
 		$settings = [
 			'google_setting'            => [
 				'title'       => __( 'Google Pay Settings', 'checkout-com-unified-payments-api' ),
@@ -599,13 +635,14 @@ class WC_Checkoutcom_Cards_Settings {
 				'description' => '',
 			],
 			'enabled'                   => [
-				'id'          => 'enable',
-				'title'       => __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
-				'type'        => 'checkbox',
-				'label'       => __( 'Enable Checkout.com', 'checkout-com-unified-payments-api' ),
-				'description' => __( 'This enables google pay as a payment method', 'checkout-com-unified-payments-api' ),
-				'desc_tip'    => true,
-				'default'     => 'no',
+				'id'          		=> 'enable',
+				'title'       		=> __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
+				'type'        		=> 'checkbox',
+				'label'       		=> __( 'Enable Checkout.com', 'checkout-com-unified-payments-api' ),
+				'description' 		=> __( 'This enables google pay as a payment method', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    		=> true,
+				'default'     		=> 'no',
+				'custom_attributes' => $should_disable_checkbox ? [ 'disabled' => 'disabled' ] : [],
 			],
 			'title'                     => [
 				'title'       => __( 'Title', 'checkout-com-unified-payments-api' ),
@@ -664,6 +701,15 @@ class WC_Checkoutcom_Cards_Settings {
 	 * @return mixed|void
 	 */
 	public static function paypal_settings() {
+		$core_settings = get_option( 'woocommerce_wc_checkout_com_cards_settings' );
+
+		$checkout_mode           = $core_settings['ckocom_checkout_mode'];
+		$should_disable_checkbox = false;
+				
+		if ( 'flow' === $checkout_mode ) {
+			$should_disable_checkbox = true;
+		}
+
 		$settings = [
 			'google_setting'            => [
 				'title'       => __( 'PayPal Settings', 'checkout-com-unified-payments-api' ),
@@ -671,13 +717,14 @@ class WC_Checkoutcom_Cards_Settings {
 				'description' => '',
 			],
 			'enabled'                   => [
-				'id'          => 'enable',
-				'title'       => __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
-				'type'        => 'checkbox',
-				'label'       => __( 'Enable Checkout.com', 'checkout-com-unified-payments-api' ),
-				'description' => __( 'This enables PayPal as a payment method', 'checkout-com-unified-payments-api' ),
-				'desc_tip'    => true,
-				'default'     => 'no',
+				'id'          		=> 'enable',
+				'title'       		=> __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
+				'type'        		=> 'checkbox',
+				'label'       		=> __( 'Enable Checkout.com', 'checkout-com-unified-payments-api' ),
+				'description' 		=> __( 'This enables PayPal as a payment method', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    		=> true,
+				'default'     		=> 'no',
+				'custom_attributes' => $should_disable_checkbox ? [ 'disabled' => 'disabled' ] : [],
 			],
 			'title'                     => [
 				'title'       => __( 'Title', 'checkout-com-unified-payments-api' ),
@@ -721,6 +768,15 @@ class WC_Checkoutcom_Cards_Settings {
 	 * @return mixed
 	 */
 	public static function apm_settings() {
+		$core_settings = get_option( 'woocommerce_wc_checkout_com_cards_settings' );
+
+		$checkout_mode           = $core_settings['ckocom_checkout_mode'];
+		$should_disable_checkbox = false;
+				
+		if ( 'flow' === $checkout_mode ) {
+			$should_disable_checkbox = true;
+		}
+
 		$settings = [
 			'apm_setting'          => [
 				'title'       => __( 'Alternative Payment Settings', 'checkout-com-unified-payments-api' ),
@@ -728,13 +784,14 @@ class WC_Checkoutcom_Cards_Settings {
 				'description' => '',
 			],
 			'enabled'              => [
-				'id'          => 'enable',
-				'title'       => __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
-				'type'        => 'checkbox',
-				'label'       => __( 'Enable Checkout.com', 'checkout-com-unified-payments-api' ),
-				'description' => __( 'This enables alternative payment methods', 'checkout-com-unified-payments-api' ),
-				'desc_tip'    => true,
-				'default'     => 'no',
+				'id'          		=> 'enable',
+				'title'       		=> __( 'Enable/Disable', 'checkout-com-unified-payments-api' ),
+				'type'        		=> 'checkbox',
+				'label'       		=> __( 'Enable Checkout.com', 'checkout-com-unified-payments-api' ),
+				'description' 		=> __( 'This enables alternative payment methods', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    		=> true,
+				'default'     		=> 'no',
+				'custom_attributes' => $should_disable_checkbox ? [ 'disabled' => 'disabled' ] : [],
 			],
 			'title'                => [
 				'title'       => __( 'Title', 'checkout-com-unified-payments-api' ),
@@ -833,4 +890,445 @@ class WC_Checkoutcom_Cards_Settings {
 
 		return apply_filters( 'wc_checkout_com_cards', $settings );
 	}
+
+	/**
+	 * CKO FLOW settings fields.
+	 *
+	 * @return array
+	 */
+	public static function flow_settings() {
+
+		$locale_link      = 'https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website/add-localization-to-your-flow-integration#Supported_languages';
+		$translation_link = 'https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website/add-localization-to-your-flow-integration#Add_custom_translations';
+		$flow_com_link    = 'https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website/flow-library-reference/checkoutwebcomponents#Methods';
+
+		// Flow Appearance settings.
+		$settings = array(
+			'flow_appearance_settings'              => array(
+				'title'       => __( 'Appearance', 'checkout-com-unified-payments-api' ),
+				'type'        => 'title',
+				'description' => '',
+			),
+			'flow_appearance_color_action'          => array(
+				'id'          => 'flow_appearance_color_action',
+				'title'       => __( 'Color Action', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a color for the Pay Button', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#186AFF',
+			),
+			'flow_appearance_color_background'      => array(
+				'id'          => 'flow_appearance_color_background',
+				'title'       => __( 'Color Background', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a color for the Background', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#f8f9fa',
+			),
+			'flow_appearance_color_border'          => array(
+				'id'          => 'flow_appearance_color_border',
+				'title'       => __( 'Color Border', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a color for the Border', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#68686C',
+			),
+			'flow_appearance_color_disabled'        => array(
+				'id'          => 'flow_appearance_color_disabled',
+				'title'       => __( 'Color Disabled', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a color for the Disabled button', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#64646E',
+			),
+			'flow_appearance_color_error'           => array(
+				'id'          => 'flow_appearance_color_error',
+				'title'       => __( 'Color Error', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a color for the Error Notification', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#FF3300',
+			),
+			'flow_appearance_color_form_background' => array(
+				'id'          => 'flow_appearance_color_form_background',
+				'title'       => __( 'Color Form Background', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( "Choose a color for the Form's Background", 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#e9ebeb',
+			),
+			'flow_appearance_color_form_border'     => array(
+				'id'          => 'flow_appearance_color_form_border',
+				'title'       => __( 'Color Form Border', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( "Choose a color for the Form's Border", 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#1F1F1F',
+			),
+			'flow_appearance_color_inverse'         => array(
+				'id'          => 'flow_appearance_color_inverse',
+				'title'       => __( 'Color Inverse', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a color for the text on Pay Button', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#F9F9FB',
+			),
+			'flow_appearance_color_outline'         => array(
+				'id'          => 'flow_appearance_color_outline',
+				'title'       => __( 'Color Outline', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a color for the outline', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#ADA4EC',
+			),
+			'flow_appearance_color_primary'         => array(
+				'id'          => 'flow_appearance_color_primary',
+				'title'       => __( 'Color Primary', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a primary color for the flow container', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#454553',
+			),
+			'flow_appearance_color_secondary'       => array(
+				'id'          => 'flow_appearance_color_secondary',
+				'title'       => __( 'Color Secondary', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a secondary color for the flow container', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#828388',
+			),
+			'flow_appearance_color_success'         => array(
+				'id'          => 'flow_appearance_color_success',
+				'title'       => __( 'Color Success', 'checkout-com-unified-payments-api' ),
+				'type'        => 'color',
+				'description' => __( 'Choose a color for success notifications', 'checkout-com-unified-payments-api' ),
+				'desc_tip'    => true,
+				'default'     => '#2ECC71',
+			),
+		);      
+
+		// Flow Button settings.
+		$settings = array_merge(
+			$settings,
+			array(
+				'flow_button_settings'       => array(
+					'title'       => __( 'Button Settings', 'checkout-com-unified-payments-api' ),
+					'type'        => 'title',
+					'description' => '',
+				),
+				'flow_button_font_family'    => array(
+					'id'          => 'flow_button_font_family',
+					'title'       => __( 'Font Family', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set the font family', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '"Roboto Mono", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif',
+				),
+				'flow_button_font_size'      => array(
+					'id'          => 'flow_button_font_size',
+					'title'       => __( 'Font Size', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set the font size', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '16px',
+				),
+				'flow_button_font_weight'    => array(
+					'id'          => 'flow_button_font_weight',
+					'title'       => __( 'Font Weight', 'checkout-com-unified-payments-api' ),
+					'type'        => 'number',
+					'description' => __( 'Set the font weight (e.g., 400, 700)', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '700',
+				),
+				'flow_button_letter_spacing' => array(
+					'id'          => 'flow_button_letter_spacing',
+					'title'       => __( 'Letter Spacing', 'checkout-com-unified-payments-api' ),
+					'type'        => 'number',
+					'description' => __( 'Set letter spacing (px)', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '0',
+				),
+				'flow_button_line_height'    => array(
+					'id'          => 'flow_button_line_height',
+					'title'       => __( 'Line Height', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set line height', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '24px',
+				),
+			)
+		);
+
+		// Flow Footnote settings.
+		$settings = array_merge(
+			$settings,
+			array(
+				'flow_footnote_settings'       => array(
+					'title'       => __( 'Footnote Settings', 'checkout-com-unified-payments-api' ),
+					'type'        => 'title',
+					'description' => '',
+				),
+				'flow_footnote_font_family'    => array(
+					'id'          => 'flow_footnote_font_family',
+					'title'       => __( 'Font Family', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set the font family', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '"PT Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif',
+				),
+				'flow_footnote_font_size'      => array(
+					'id'          => 'flow_footnote_font_size',
+					'title'       => __( 'Font Size', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set the font size', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '14px',
+				),
+				'flow_footnote_font_weight'    => array(
+					'id'          => 'flow_footnote_font_weight',
+					'title'       => __( 'Font Weight', 'checkout-com-unified-payments-api' ),
+					'type'        => 'number',
+					'description' => __( 'Set the font weight (e.g., 400, 700)', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '400',
+				),
+				'flow_footnote_letter_spacing' => array(
+					'id'          => 'flow_footnote_letter_spacing',
+					'title'       => __( 'Letter Spacing', 'checkout-com-unified-payments-api' ),
+					'type'        => 'number',
+					'description' => __( 'Set letter spacing (px)', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '0',
+				),
+				'flow_footnote_line_height'    => array(
+					'id'          => 'flow_footnote_line_height',
+					'title'       => __( 'Line Height', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set line height', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '20px',
+				),
+			)
+		);
+
+		// Flow Label settings.
+		$settings = array_merge(
+			$settings,
+			array(
+				'flow_label_settings'       => array(
+					'title'       => __( 'Label Settings', 'checkout-com-unified-payments-api' ),
+					'type'        => 'title',
+					'description' => '',
+				),
+				'flow_label_font_family'    => array(
+					'id'          => 'flow_label_font_family',
+					'title'       => __( 'Font Family', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set the font family', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '"Roboto Mono", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif',
+				),
+				'flow_label_font_size'      => array(
+					'id'          => 'flow_label_font_size',
+					'title'       => __( 'Font Size', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set the font size', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '14px',
+				),
+				'flow_label_font_weight'    => array(
+					'id'          => 'flow_label_font_weight',
+					'title'       => __( 'Font Weight', 'checkout-com-unified-payments-api' ),
+					'type'        => 'number',
+					'description' => __( 'Set the font weight (e.g., 400, 700)', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '400',
+				),
+				'flow_label_letter_spacing' => array(
+					'id'          => 'flow_label_letter_spacing',
+					'title'       => __( 'Letter Spacing', 'checkout-com-unified-payments-api' ),
+					'type'        => 'number',
+					'description' => __( 'Set letter spacing (px)', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '0',
+				),
+				'flow_label_line_height'    => array(
+					'id'          => 'flow_label_line_height',
+					'title'       => __( 'Line Height', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set line height', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '20px',
+				),
+			)
+		);
+
+		// Flow Subheading settings.
+		$settings = array_merge(
+			$settings,
+			array(
+				'flow_subheading_settings'       => array(
+					'title'       => __( 'Subheading Settings', 'checkout-com-unified-payments-api' ),
+					'type'        => 'title',
+					'description' => '',
+				),
+				'flow_subheading_font_family'    => array(
+					'id'          => 'flow_subheading_font_family',
+					'title'       => __( 'Font Family', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set the font family', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '"Roboto Mono", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif',
+				),
+				'flow_subheading_font_size'      => array(
+					'id'          => 'flow_subheading_font_size',
+					'title'       => __( 'Font Size', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set the font size', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '16px',
+				),
+				'flow_subheading_font_weight'    => array(
+					'id'          => 'flow_subheading_font_weight',
+					'title'       => __( 'Font Weight', 'checkout-com-unified-payments-api' ),
+					'type'        => 'number',
+					'description' => __( 'Set the font weight (e.g., 400, 700)', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '700',
+				),
+				'flow_subheading_letter_spacing' => array(
+					'id'          => 'flow_subheading_letter_spacing',
+					'title'       => __( 'Letter Spacing', 'checkout-com-unified-payments-api' ),
+					'type'        => 'number',
+					'description' => __( 'Set letter spacing (px)', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '0',
+				),
+				'flow_subheading_line_height'    => array(
+					'id'          => 'flow_subheading_line_height',
+					'title'       => __( 'Line Height', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Set line height', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '24px',
+				),
+			)
+		);
+
+		// Flow Border settings.
+		$settings = array_merge(
+			$settings,
+			array(
+				'flow_border_settings'      => array(
+					'title'       => __( 'Border Settings', 'checkout-com-unified-payments-api' ),
+					'type'        => 'title',
+					'description' => '',
+				),
+				'flow_form_border_radius'   => array(
+					'id'          => 'flow_form_border_radius',
+					'title'       => __( 'Form Border Radius', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Enter Form border-radius value', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '8px',
+				),
+				'flow_button_border_radius' => array(
+					'id'          => 'flow_button_border_radius',
+					'title'       => __( 'Button Border Radius', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					'description' => __( 'Enter Button border-radius value', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => '8px',
+				),
+			)
+		);
+
+		// Flow Component options.
+		$settings = array_merge(
+			$settings,
+			array(
+				'flow_component_options'                     => array(
+					'title'       => __( 'Component Options', 'checkout-com-unified-payments-api' ),
+					'type'        => 'title',
+					'description' => '',
+				),
+				'flow_component_expand_first_payment_method' => array(
+					'id'          => 'flow_component_expand_first_payment_method',
+					'title'       => __( 'Auto Expand', 'checkout-com-unified-payments-api' ),
+					'type'        => 'checkbox',
+					'label'       => __( 'Expand/Collapse First Payment Method', 'checkout-com-unified-payments-api' ),
+					'description' => __( 'Automatically expand the first available payment method if multiple methods exist.', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => 'yes',
+				),
+				'flow_show_card_holder_name'                 => array(
+					'id'          => 'flow_show_card_holder_name',
+					'title'       => __( 'Card Holder Name', 'checkout-com-unified-payments-api' ),
+					'type'        => 'checkbox',
+					'label'       => __( 'Show/Hide Card Holder Name', 'checkout-com-unified-payments-api' ),
+					'description' => __( 'Show Card holder name from their account', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => 'yes',
+				),
+				'flow_component_cardholder_name_position'    => array(
+					'id'          => 'flow_component_cardholder_name_position',
+					'title'       => __( 'Cardholder Name Position', 'checkout-com-unified-payments-api' ),
+					'type'        => 'select',
+					'options'     => array(
+						'top'    => __( 'Top', 'checkout-com-unified-payments-api' ),
+						'bottom' => __( 'Bottom', 'checkout-com-unified-payments-api' ),
+						'hidden' => __( 'Hidden', 'checkout-com-unified-payments-api' ),
+					),
+					'description' => __( 'Choose the position of the cardholder name field.', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => 'top',
+				),
+				'flow_component_show_pay_button'             => array(
+					'id'          => 'flow_component_show_pay_button',
+					'title'       => __( 'FLOW Payment Button', 'checkout-com-unified-payments-api' ),
+					'type'        => 'checkbox',
+					'label'       => __( 'Show/Hide Payment Button inside FLOW container', 'checkout-com-unified-payments-api' ),
+					'description' => __( 'Show Payment Button inside FLOW container or Use default woocommerce "Place Order" Button', 'checkout-com-unified-payments-api' ),
+					'desc_tip'    => true,
+					'default'     => 'yes',
+				),
+				'flow_component_locale'                      => array(
+					'id'          => 'flow_component_locale',
+					'title'       => __( 'Locale', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					/* translators: 1: HTML anchor opening tag, 2: HTML anchor closing tag. */
+					'description' => sprintf( __( 'You can %1$s check out locales here %2$s in the Checkout.com Hub', 'checkout-com-unified-payments-api' ), '<a class="checkoutcom-key-docs" target="_blank" href="' . esc_url( $locale_link ) . '">', '</a>' ),
+					'default'     => 'en',
+				),
+				'flow_component_translation'                 => array(
+					'id'          => 'flow_component_translation',
+					'title'       => __( 'Custom Translation', 'checkout-com-unified-payments-api' ),
+					'type'        => 'textarea',
+					/* translators: 1: HTML anchor opening tag, 2: HTML anchor closing tag. */
+					'description' => sprintf( __( 'Add data in JSON format. You can %1$s check out about translations here %2$s in the Checkout.com Hub', 'checkout-com-unified-payments-api' ), '<a class="checkoutcom-key-docs" target="_blank" href="' . esc_url( $translation_link ) . '">', '</a>' ),
+					'placeholder' => <<<JSON
+					{
+						"en": {
+							"form.required": "Please provide this field",
+							"pay_button.pay": "Pay now",
+							"pay_button.payment_failed": "Payment failed, please try again"
+						},
+						"fr": {.........}
+					}
+					JSON,
+				),
+				'flow_component_name'                        => array(
+					'id'          => 'flow_component_name',
+					'title'       => __( 'Flow Payment method', 'checkout-com-unified-payments-api' ),
+					'type'        => 'text',
+					/* translators: 1: HTML anchor opening tag, 2: HTML anchor closing tag. */
+					'description' => sprintf( __( 'You can %1$s read more about flow component name here %2$s in the Checkout.com Hub. "flow" option will render all the available payment methods.', 'checkout-com-unified-payments-api' ), '<a class="checkoutcom-key-docs" target="_blank" href="' . esc_url( $flow_com_link ) . '">', '</a>' ),
+					'default'     => 'flow',
+				),
+			)
+		);
+
+		return apply_filters( 'wc_checkout_com_flow_settings', $settings );
+	}
+
 }

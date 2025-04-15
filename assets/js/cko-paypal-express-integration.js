@@ -56,6 +56,46 @@ jQuery( function ( $ ) {
         };
     };
 
+    let showError = function ( error_message ) {
+
+        if ( 'string' === typeof error_message ) {
+            error_message = [ error_message ];
+        }
+
+        let ulWrapper = jQuery( '<ul/>' )
+            .prop( 'role', 'alert' ).addClass( 'woocommerce-error' );
+
+        if ( Array.isArray( error_message ) ) {
+            jQuery.each( error_message, function( index, value ) {
+                jQuery( ulWrapper ).append( jQuery( '<li>' ).html( value ) );
+            });
+        }
+
+        let wcNoticeDiv = jQuery( '<div>' )
+            .addClass( 'woocommerce-NoticeGroup woocommerce-NoticeGroup-checkout' )
+            .append( ulWrapper );
+
+        let scrollTarget;
+
+        if ( jQuery('form.checkout').length ) {
+            jQuery('form.checkout .woocommerce-NoticeGroup').remove();
+            jQuery('form.checkout').prepend(wcNoticeDiv);
+            jQuery('.woocommerce, .form.checkout').removeClass('processing').unblock();
+            scrollTarget = jQuery('form.checkout');
+        } else if ( jQuery('.woocommerce-order-pay').length ) {
+            jQuery('.woocommerce-order-pay .woocommerce-NoticeGroup').remove();
+            jQuery('.woocommerce-order-pay').prepend(wcNoticeDiv);
+            jQuery('.woocommerce, .woocommerce-order-pay').removeClass('processing').unblock();
+            scrollTarget = jQuery('.woocommerce-order-pay');
+        }
+    
+        if ( scrollTarget ) {
+            jQuery('html, body').animate({
+                scrollTop: (scrollTarget.offset().top - 100)
+            }, 1000);
+        }
+    };
+
     const cko_express_add_to_cart = async function () {
         var product_id = $( '.single_add_to_cart_button' ).val();
 
