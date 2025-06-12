@@ -108,14 +108,3 @@ function isValidJson(str) {
 window.translations = isValidJson(cko_flow_customization_vars.flow_component_translation)
     ? JSON.parse(cko_flow_customization_vars.flow_component_translation)
     : {};
-
-// Show Pay Button section.
-let show_pay_button =
-	cko_flow_customization_vars.flow_component_show_pay_button;
-if (show_pay_button === "yes") {
-	show_pay_button = true;
-} else {
-	show_pay_button = false;
-}
-
-window.showPayButton = show_pay_button;

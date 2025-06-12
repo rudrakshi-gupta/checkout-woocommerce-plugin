@@ -5,10 +5,10 @@
  * Description: Extends WooCommerce by Adding the Checkout.com Gateway.
  * Author: Checkout.com
  * Author URI: https://www.checkout.com/
- * Version: 4.9.2
+ * Version: 5.0.0
  * Requires Plugins: woocommerce
  * Requires at least: 5.0
- * Stable tag: 4.9.2
+ * Stable tag: 5.0.0
  * Tested up to: 6.7.0
  * WC tested up to: 8.3.1
  * Requires PHP: 7.3
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Constants.
  */
-define( 'WC_CHECKOUTCOM_PLUGIN_VERSION', '4.9.2' );
+define( 'WC_CHECKOUTCOM_PLUGIN_VERSION', '5.0.0' );
 define( 'WC_CHECKOUTCOM_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
 define( 'WC_CHECKOUTCOM_PLUGIN_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 
@@ -794,3 +794,17 @@ function cko_get_payment_status( $request ) {
 	// Return API response.
 	return new WP_REST_Response( $body, $code );
 }
+
+/**
+ * Sends the updated cart information as a JSON response.
+ *
+ * Used in AJAX handlers to fetch updated cart data.
+ *
+ * @return void
+ */
+function get_updated_cart_info() {
+	wp_send_json_success( WC_Checkoutcom_Api_Request::get_cart_info(true) );
+}
+
+add_action('wp_ajax_get_cart_info', 'get_updated_cart_info');
+add_action('wp_ajax_nopriv_get_cart_info', 'get_updated_cart_info');

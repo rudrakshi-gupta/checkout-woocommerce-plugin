@@ -1283,15 +1283,6 @@ class WC_Checkoutcom_Cards_Settings {
 					'desc_tip'    => true,
 					'default'     => 'top',
 				),
-				'flow_component_show_pay_button'             => array(
-					'id'          => 'flow_component_show_pay_button',
-					'title'       => __( 'FLOW Payment Button', 'checkout-com-unified-payments-api' ),
-					'type'        => 'checkbox',
-					'label'       => __( 'Show/Hide Payment Button inside FLOW container', 'checkout-com-unified-payments-api' ),
-					'description' => __( 'Show Payment Button inside FLOW container or Use default woocommerce "Place Order" Button', 'checkout-com-unified-payments-api' ),
-					'desc_tip'    => true,
-					'default'     => 'yes',
-				),
 				'flow_component_locale'                      => array(
 					'id'          => 'flow_component_locale',
 					'title'       => __( 'Locale', 'checkout-com-unified-payments-api' ),

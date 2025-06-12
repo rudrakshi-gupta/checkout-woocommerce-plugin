@@ -14,6 +14,23 @@
 	font-size: 1.5rem;
 }
 
-body.flow-method-selected #place_order {
+body.flow-method-single label[for="payment_method_wc_checkout_com_flow"] {
 	display: none !important;
+}
+
+.button-container {
+	display: flex;
+	height: 100%;
+}
+
+.wp-style-button {
+	border: none;
+	padding: 10px 3px;
+	margin: 8px;
+	cursor: pointer;
+	transition: 0.2s ease-in-out;
+}
+
+#flow-container .woocommerce-SavedPaymentMethods {
+	margin-left: 1.5em !important;
 }

@@ -241,6 +241,23 @@ class WC_Checkoutcom_Api_Request {
 			$method = WC_Checkoutcom_Api_Request::get_apm_method( $post_data, $order, $arg );
 
 			$payment_option = $method->type;
+		} elseif ( 'wc_checkout_com_flow' === $post_data['payment_method'] ) {
+			if ( self::is_using_saved_payment_method() ) {
+				// Saved card used.
+				// Load token id ($arg).
+				$token = WC_Payment_Tokens::get( $arg );
+
+				$card_scheme = $token->get_meta( 'preferred_scheme' );
+
+				// Get source_id from $token.
+				$source_id = $token->get_token();
+
+				$method     = new RequestIdSource();
+				$method->id = $source_id;
+
+				$is_save_card = true;
+
+			}
 		} elseif ( ! is_null( $subscription ) ) {
 
 			$method     = new RequestIdSource();
@@ -1191,7 +1208,7 @@ class WC_Checkoutcom_Api_Request {
 	 *
 	 * @return array
 	 */
-	public static function get_cart_info() {
+	public static function get_cart_info( $flow = false ) {
 
 		if ( ! WC()->cart ) {
 			return [];
@@ -1202,42 +1219,83 @@ class WC_Checkoutcom_Api_Request {
 
 		$total_amount = WC()->cart->total;
 		$amount_cents = WC_Checkoutcom_Utility::value_to_decimal( $total_amount, get_woocommerce_currency() );
+		$currency        = get_woocommerce_currency();
 
 		foreach ( $items as $item => $values ) {
 
 			$_product         = wc_get_product( $values['data']->get_id() );
 			$wc_product       = wc_get_product( $values['product_id'] );
-			$price_excl_tax   = wc_get_price_excluding_tax( $wc_product );
-			$unit_price_cents = WC_Checkoutcom_Utility::value_to_decimal( $price_excl_tax, get_woocommerce_currency() );
 
-			if ( $wc_product->is_taxable() ) {
+			if( $flow ) {
+				$quantity   = $values['quantity'];
 
-				$price_incl_tax         = wc_get_price_including_tax( $wc_product );
-				$unit_price_cents       = WC_Checkoutcom_Utility::value_to_decimal( $price_incl_tax, get_woocommerce_currency() );
-				$tax_amount             = $price_incl_tax - $price_excl_tax;
-				$total_tax_amount_cents = WC_Checkoutcom_Utility::value_to_decimal( $tax_amount, get_woocommerce_currency() );
+				// WooCommerce subtotal before coupon, total after coupon
+				$line_subtotal = $values['line_subtotal'];
+				$line_total    = $values['line_total'];
 
-				$tax       = WC_Tax::get_rates();
-				$reset_tax = reset( $tax )['rate'];
-				$tax_rate  = round( $reset_tax );
+				// Unit prices with and without discount
+				$unit_price          = $line_subtotal / $quantity;
+				$unit_discount       = ( $line_subtotal - $line_total ) / $quantity;
+				$discounted_unit     = $unit_price - $unit_discount;
+				$unit_price_cents    = WC_Checkoutcom_Utility::value_to_decimal( $discounted_unit, $currency );
+				$discount_total_cents = WC_Checkoutcom_Utility::value_to_decimal( $unit_discount * $quantity, $currency );
 
+				// Tax info
+				if ( $wc_product->is_taxable() ) {
+					$price_excl_tax   = $line_total / $quantity;
+					$price_incl_tax   = ( $values['line_total'] + $values['line_tax'] ) / $quantity;
+					$tax_amount       = $price_incl_tax - $price_excl_tax;
+					$tax_rate         = round( reset( WC_Tax::get_rates() )['rate'] ?? 0 );
+					$tax_amount_cents = WC_Checkoutcom_Utility::value_to_decimal( $tax_amount * $quantity, $currency );
+				} else {
+					$tax_rate         = 0;
+					$tax_amount_cents = 0;
+				}
+
+				$products[] = [
+					'name'                  => $_product->get_title(),
+					'quantity'              => $quantity,
+					'unit_price'            => $unit_price_cents,
+					'tax_rate'              => $tax_rate * 100,
+					'total_amount'          => $unit_price_cents * $quantity,
+					'total_tax_amount'      => $tax_amount_cents,
+					'type'                  => 'physical',
+					'reference'             => $_product->get_sku(),
+					'total_discount_amount' => $discount_total_cents,
+				];
 			} else {
-				$tax_rate               = 0;
-				$total_tax_amount_cents = 0;
+				$price_excl_tax   = wc_get_price_excluding_tax( $wc_product );
+				$unit_price_cents = WC_Checkoutcom_Utility::value_to_decimal( $price_excl_tax, get_woocommerce_currency() );
+
+				if ( $wc_product->is_taxable() ) {
+
+					$price_incl_tax         = wc_get_price_including_tax( $wc_product );
+					$unit_price_cents       = WC_Checkoutcom_Utility::value_to_decimal( $price_incl_tax, get_woocommerce_currency() );
+					$tax_amount             = $price_incl_tax - $price_excl_tax;
+					$total_tax_amount_cents = WC_Checkoutcom_Utility::value_to_decimal( $tax_amount, get_woocommerce_currency() );
+
+					$tax       = WC_Tax::get_rates();
+					$reset_tax = reset( $tax )['rate'];
+					$tax_rate  = round( $reset_tax );
+
+				} else {
+					$tax_rate               = 0;
+					$total_tax_amount_cents = 0;
+				}
+
+				$products[] = [
+					'name'                  => $_product->get_title(),
+					'quantity'              => $values['quantity'],
+					'unit_price'            => $unit_price_cents,
+					'tax_rate'              => $tax_rate * 100,
+					'total_amount'          => $unit_price_cents * $values['quantity'],
+					'total_tax_amount'      => $total_tax_amount_cents,
+					'type'                  => 'physical',
+					'reference'             => $_product->get_sku(),
+					'total_discount_amount' => 0,
+
+				];
 			}
-
-			$products[] = [
-				'name'                  => $_product->get_title(),
-				'quantity'              => $values['quantity'],
-				'unit_price'            => $unit_price_cents,
-				'tax_rate'              => $tax_rate * 100,
-				'total_amount'          => $unit_price_cents * $values['quantity'],
-				'total_tax_amount'      => $total_tax_amount_cents,
-				'type'                  => 'physical',
-				'reference'             => $_product->get_sku(),
-				'total_discount_amount' => 0,
-
-			];
 		}
 
 		$chosen_methods  = wc_get_chosen_shipping_method_ids();
