@@ -231,6 +231,46 @@ var ckoFlow = {
 					 * Triggered on component state change.
 					 */
 					onChange: (component) => {
+
+						const hiddenTypes = [
+							"applepay",
+							"googlepay",
+							"alipaycn",
+							"alipayhk",
+							"dana",
+							"gcash",
+							"kakaopay",
+							"octopus",
+							"paypal",
+							"stcpay",
+							"touchngo",
+							"truemoney",
+							"twint",
+							"venmo",
+							"wechatpay"
+						];
+
+						const placeOrderButton = document.querySelector("#place_order");
+
+						// Hide place order button on digital wallets.
+						if (hiddenTypes.includes(component.selectedType)) {
+							if (placeOrderButton) placeOrderButton.style.display = "none";
+						} else {
+							if (placeOrderButton) placeOrderButton.style.display = "block";
+						}
+						
+						// Pre-validate for apple pay.
+						if ( component.selectedType === "applepay" ) {
+							const applePayButton = document.querySelector('button[aria-label="Apple Pay"]');
+							applePayButton.disabled = true;
+
+							const form = jQuery("form.checkout");
+
+							validateCheckout(form, function (response) {
+								applePayButton.disabled = false;
+							});
+						}
+
 						console.log(
 							`[FLOW] onChange() -> isValid: "${component.isValid()}" for "${
 								component.type
@@ -242,11 +282,15 @@ var ckoFlow = {
 					 * Triggered on component click.
 					 */
 					handleClick: (component) => {
+
+						if(component.type==="applepay") {
+							return {continue: true};
+						}
+
 						return new Promise((resolve) => {
 							const form = jQuery("form.checkout");
 					
 							validateCheckout(form, function (response) {
-								console.log('yes');
 								resolve({ continue: true });
 							});
 						});
@@ -398,7 +442,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		// If the element is not present, update ckoFlowInitialized.
 		if (!element) {
 			ckoFlowInitialized = false;
-			console.log("set to false");
 		}
 	});
 
