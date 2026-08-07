@@ -132,7 +132,6 @@ rsync -av --inplace \
   --exclude='php-uploads.ini' \
   --exclude='composer.phar' \
   --exclude='bin/strauss.phar' \
-  --exclude='vendor/wp-cli' \
   "${PLUGIN_SOURCE_DIR}/" "${PLUGIN_DIR}/" > /dev/null 2>&1
 
 # Verify structure
