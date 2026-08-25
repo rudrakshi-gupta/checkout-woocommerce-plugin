@@ -5,6 +5,8 @@
  * @package wc_checkout_com
  */
 
+defined( 'ABSPATH' ) || exit;
+
 use Checkout\CheckoutApiException;
 use Checkout\Common\CustomerRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource;
@@ -300,8 +302,8 @@ class WC_Gateway_Checkout_Com_Cards extends WC_Payment_Gateway_CC {
 			],
 		];
 
-		echo '<h3>' . $this->method_title . ' </h3>';
-		echo '<p>' . $this->method_description . ' </p>';
+		echo '<h3>' . esc_html( $this->method_title ) . ' </h3>';
+		echo '<p>' . esc_html( $this->method_description ) . ' </p>';
 		$this->generate_screen_button_html( 'screen_button', $test );
 
 		if ( 'quick_settings' === $screen ) {
@@ -511,8 +513,8 @@ class WC_Gateway_Checkout_Com_Cards extends WC_Payment_Gateway_CC {
 			$manual_keys = array( 'flow_component_cardholder_name_position', 'flow_show_card_holder_name', 'flow_saved_payment' );
 			$manual_updated = false;
 			foreach ( $manual_keys as $manual_key ) {
-				$nested_value = $_POST['woocommerce_wc_checkout_com_cards_settings'][ $manual_key ] ?? null;
-				$direct_value = $_POST[ $manual_key ] ?? null;
+				$nested_value = isset( $_POST['woocommerce_wc_checkout_com_cards_settings'][ $manual_key ] ) ? sanitize_text_field( wp_unslash( $_POST['woocommerce_wc_checkout_com_cards_settings'][ $manual_key ] ) ) : null;
+				$direct_value = isset( $_POST[ $manual_key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $manual_key ] ) ) : null;
 				$source_value = null;
 
 				if ( null !== $nested_value ) {
@@ -564,15 +566,15 @@ class WC_Gateway_Checkout_Com_Cards extends WC_Payment_Gateway_CC {
 		$iframe_style          = WC_Admin_Settings::get_option( 'ckocom_iframe_style', '0' );
 
 		?>
-		<input type="hidden" id="debug" value='<?php echo WC_Admin_Settings::get_option( 'cko_console_logging' ); ?>' />
-		<input type="hidden" id="public-key" value='<?php echo $this->get_option( 'ckocom_pk' ); ?>'/>
-		<input type="hidden" id="localization" value='<?php echo $this->get_localisation(); ?>'/>
-		<input type="hidden" id="multiFrame" value='<?php echo $iframe_style; ?>'/>
-		<input type="hidden" id="cko-icons" value='<?php echo WC_CHECKOUTCOM_PLUGIN_URL . '/assets/images/card-icons/'; ?>'/>
-		<input type="hidden" id="is-mada" value='<?php echo $mada_enable; ?>'/>
-		<input type="hidden" id="mada-token" value='<?php echo $is_mada_token; ?>'/>
-		<input type="hidden" id="user-logged-in" value='<?php echo is_user_logged_in(); ?>'/>
-		<input type="hidden" id="card-validation-alert" value='<?php echo $card_validation_alert; ?>'/>
+		<input type="hidden" id="debug" value='<?php echo esc_attr( WC_Admin_Settings::get_option( 'cko_console_logging' ) ); ?>' />
+		<input type="hidden" id="public-key" value='<?php echo esc_attr( $this->get_option( 'ckocom_pk' ) ); ?>'/>
+		<input type="hidden" id="localization" value='<?php echo esc_attr( $this->get_localisation() ); ?>'/>
+		<input type="hidden" id="multiFrame" value='<?php echo esc_attr( $iframe_style ); ?>'/>
+		<input type="hidden" id="cko-icons" value='<?php echo esc_url( WC_CHECKOUTCOM_PLUGIN_URL . '/assets/images/card-icons/' ); ?>'/>
+		<input type="hidden" id="is-mada" value='<?php echo esc_attr( $mada_enable ); ?>'/>
+		<input type="hidden" id="mada-token" value='<?php echo esc_attr( $is_mada_token ); ?>'/>
+		<input type="hidden" id="user-logged-in" value='<?php echo esc_attr( is_user_logged_in() ); ?>'/>
+		<input type="hidden" id="card-validation-alert" value='<?php echo esc_attr( $card_validation_alert ); ?>'/>
 
 		<?php if ( ! is_user_logged_in() ) : ?>
 		<script>
@@ -798,6 +800,7 @@ class WC_Gateway_Checkout_Com_Cards extends WC_Payment_Gateway_CC {
 
 			$order->add_order_note(
 				sprintf(
+					/* translators: %s: 3DS redirect URL. */
 					esc_html__( 'Checkout.com 3d Redirect waiting. URL : %s', 'checkout-com-unified-payments-api' ),
 					$result['3d']
 				)
@@ -879,9 +882,7 @@ class WC_Gateway_Checkout_Com_Cards extends WC_Payment_Gateway_CC {
 			session_start();
 		}
 
-		if ( $_REQUEST['cko-session-id'] ) {
-			$cko_session_id = $_REQUEST['cko-session-id'];
-		}
+		$cko_session_id = isset( $_REQUEST['cko-session-id'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['cko-session-id'] ) ) : '';
 
 		// Verify session id.
 		$result = (array) ( new WC_Checkoutcom_Api_Request() )->verify_session( $cko_session_id );
@@ -1241,7 +1242,7 @@ class WC_Gateway_Checkout_Com_Cards extends WC_Payment_Gateway_CC {
 		$formatted_amount = wc_price( $refund_amount, array( 'currency' => $order->get_currency() ) );
 
 		if ( isset( $_SESSION['cko-refund-is-less'] ) ) {
-			if ( $_SESSION['cko-refund-is-less'] ) {
+			if ( (bool) $_SESSION['cko-refund-is-less'] ) {
 				WC_Checkoutcom_Utility::logger( "REFUND DEBUG: Partial refund completed" );
 				/* translators: %1$s: Payment ID, %2$s: Action ID, %3$s: Amount. */
 				$order->add_order_note( sprintf( esc_html__( 'Checkout.com Payment Partially refunded from Admin – Payment ID: %1$s, Action ID: %2$s, Amount: %3$s', 'checkout-com-unified-payments-api' ), $payment_id, $result['action_id'], $formatted_amount ) );

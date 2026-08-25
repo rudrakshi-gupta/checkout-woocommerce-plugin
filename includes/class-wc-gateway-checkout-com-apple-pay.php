@@ -790,7 +790,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 				var isOrderPayPage = jQuery(document.body).hasClass('woocommerce-order-pay');
 				
 				if( !isOrderPayPage ) {
-					var checkoutFields = '<?php echo $checkout_fields; ?>';
+					var checkoutFields = '<?php echo esc_js( $checkout_fields ); ?>';
 					var result = isValidFormField(checkoutFields);
 				}
 				
@@ -1268,7 +1268,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		// Express now sends the same field, so we can use the same process_payment method
 		
 		// Get payment data for email and address extraction
-		$payment_data_json = isset( $_POST['payment_data'] ) ? wp_unslash( $_POST['payment_data'] ) : '';
+		$payment_data_json = ( isset( $_POST['payment_data'] ) && is_string( $_POST['payment_data'] ) ) ? wp_unslash( $_POST['payment_data'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Apple Pay JSON payload; unslashed then json_decode()d and validated below; text sanitisation would corrupt the JSON.
 		$payment_data = ! empty( $payment_data_json ) ? json_decode( $payment_data_json, true ) : array();
 		
 		// Extract email and address from payment data
@@ -1557,6 +1557,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 			'https' === wp_parse_url( $url, PHP_URL_SCHEME ) &&
 			substr( wp_parse_url( $url, PHP_URL_HOST ), - 10 ) === '.apple.com'
 		) {
+			// phpcs:disable WordPress.WP.AlternativeFunctions -- Apple Pay merchant/session validation requires client-certificate (mutual TLS) auth via CURLOPT_SSLCERT/SSLKEY, which the WordPress HTTP API (wp_remote_*) does not support.
 			$ch = curl_init();
 
 			$data =
@@ -1575,11 +1576,12 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 
 			// TODO: throw error and log it.
 			if ( curl_exec( $ch ) === false ) {
-				echo '{"curlError":"' . curl_error( $ch ) . '"}';
+				echo wp_json_encode( array( 'curlError' => curl_error( $ch ) ) );
 			}
 
 			// close cURL resource, and free up system resources.
 			curl_close( $ch );
+			// phpcs:enable WordPress.WP.AlternativeFunctions
 
 			exit();
 		}
@@ -1594,6 +1596,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		// Generate apple token.
 		$token = WC_Checkoutcom_Api_Request::generate_apple_token();
 
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $token is the Apple Pay merchant-session JSON payload returned to the JS SDK; HTML-escaping it would corrupt the payload.
 		echo $token;
 
 		exit();
@@ -1614,7 +1617,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		$order = new WC_Order( $order_id );
 
 		// create apple token from apple payment data.
-		$apple_token = $_POST['cko-apple-card-token'] ?? ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$apple_token = ( isset( $_POST['cko-apple-card-token'] ) && is_string( $_POST['cko-apple-card-token'] ) ) ? $_POST['cko-apple-card-token'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- opaque Apple Pay payment token; used verbatim to preserve exact bytes; unslashing/sanitising would invalidate it.
 
 		// Check if apple token is not empty.
 		if ( empty( $apple_token ) ) {
@@ -1706,7 +1709,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		$formatted_amount = wc_price( $refund_amount, array( 'currency' => $order->get_currency() ) );
 
 		if ( isset( $_SESSION['cko-refund-is-less'] ) ) {
-			if ( $_SESSION['cko-refund-is-less'] ) {
+			if ( (bool) $_SESSION['cko-refund-is-less'] ) {
 				/* translators: %1$s: Payment ID, %2$s: Action ID, %3$s: Amount. */
 				$order->add_order_note( sprintf( __( 'Checkout.com Payment Partially refunded from Admin – Payment ID: %1$s, Action ID: %2$s, Amount: %3$s', 'checkout-com-unified-payments-api' ), $payment_id, $result['action_id'], $formatted_amount ) );
 
@@ -2206,7 +2209,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 			] );
 		}
 
-		$certificate_base64_raw = wp_unslash( $_POST['certificate'] );
+		$certificate_base64_raw = is_string( $_POST['certificate'] ) ? wp_unslash( $_POST['certificate'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- base64-encoded Apple Pay certificate (DER); unslashed then base64_decode()d/validated; text sanitisation would corrupt it.
 		
 		// The certificate from Apple is in DER format (binary)
 		// JavaScript FileReader already converts it to base64
@@ -2260,8 +2263,10 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 					$certificate_final = preg_replace( '/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s/', '', $pem_content );
 				}
 				
+				// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- closing temporary certificate file handles used for the openssl DER->PEM conversion.
 				fclose( $temp_der );
 				fclose( $temp_pem );
+				// phpcs:enable WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 			}
 		}
 		
@@ -2671,7 +2676,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		}
 
 		// Get site domain for certificate subject
-		$site_domain = parse_url( home_url(), PHP_URL_HOST );
+		$site_domain = wp_parse_url( home_url(), PHP_URL_HOST );
 		if ( empty( $site_domain ) ) {
 			$site_domain = 'example.com';
 		}
@@ -2809,7 +2814,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 			return;
 		}
 
-		$file_content = wp_unslash( $_POST['file_content'] );
+		$file_content = is_string( $_POST['file_content'] ) ? wp_unslash( $_POST['file_content'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Apple domain-association file content written verbatim to .well-known; text sanitisation would alter the association file.
 		
 		// Get the correct .well-known directory path
 		$well_known_info = $this->get_well_known_path();
@@ -2823,7 +2828,8 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 				if ( ! wp_mkdir_p( $well_known_dir ) && ! is_dir( $well_known_dir ) ) {
 					wp_send_json_error( [ 
 						'message' => sprintf(
-							__( 'Failed to create .well-known directory at %s. For Bitnami installations, you may need to create it manually via SSH: sudo mkdir -p %s && sudo chmod 755 %s', 'checkout-com-unified-payments-api' ),
+							/* translators: 1: .well-known directory path, 2: directory path for mkdir, 3: directory path for chmod. */
+							__( 'Failed to create .well-known directory at %1$s. For Bitnami installations, you may need to create it manually via SSH: sudo mkdir -p %2$s && sudo chmod 755 %3$s', 'checkout-com-unified-payments-api' ),
 							$well_known_dir,
 							$well_known_dir,
 							$well_known_dir
@@ -2849,7 +2855,8 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		if ( false === $file_saved ) {
 			wp_send_json_error( [ 
 				'message' => sprintf(
-					__( 'Failed to save domain association file to %s. Please check file permissions. For Bitnami, you may need to set permissions manually: sudo chmod 644 %s', 'checkout-com-unified-payments-api' ),
+					/* translators: 1: domain association file path, 2: file path for chmod. */
+					__( 'Failed to save domain association file to %1$s. Please check file permissions. For Bitnami, you may need to set permissions manually: sudo chmod 644 %2$s', 'checkout-com-unified-payments-api' ),
 					$file_path,
 					$file_path
 				),
@@ -2858,6 +2865,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		}
 
 		// Set appropriate file permissions
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod -- restrictive permissions on the plugin's own certificate/key/config file; direct chmod is required and reliable here.
 		@chmod( $file_path, 0644 );
 		
 		// For non-Bitnami installations, ensure .well-known directory is accessible
@@ -2869,6 +2877,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		if ( ! $is_bitnami ) {
 			$file_path_no_ext = $well_known_dir . '/apple-developer-merchantid-domain-association';
 			file_put_contents( $file_path_no_ext, $file_content );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod -- restrictive permissions on the plugin's own certificate/key/config file; direct chmod is required and reliable here.
 			@chmod( $file_path_no_ext, 0644 );
 		}
 
@@ -2908,7 +2917,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		}
 
 		// Get site domain for certificate subject
-		$site_domain = parse_url( home_url(), PHP_URL_HOST );
+		$site_domain = wp_parse_url( home_url(), PHP_URL_HOST );
 		if ( empty( $site_domain ) ) {
 			$site_domain = 'example.com';
 		}
@@ -2997,6 +3006,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		}
 
 		// Set appropriate file permissions (readable only by owner)
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod -- restrictive permissions on the plugin's own certificate/key/config file; direct chmod is required and reliable here.
 		chmod( $key_file, 0600 );
 
 		// Return CSR and private key as base64 for download, and also return server paths
@@ -3038,7 +3048,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 			return;
 		}
 
-		$certificate_base64 = wp_unslash( $_POST['certificate'] );
+		$certificate_base64 = is_string( $_POST['certificate'] ) ? wp_unslash( $_POST['certificate'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- base64-encoded Apple Pay certificate (DER); unslashed then base64_decode()d/validated; text sanitisation would corrupt it.
 		
 		// Decode base64 to get DER format
 		$certificate_der = base64_decode( $certificate_base64 );
@@ -3070,7 +3080,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 			$certificate_pem = shell_exec( $command );
 			
 			// Clean up temp file
-			@unlink( $temp_der );
+			wp_delete_file( $temp_der );
 		}
 
 		if ( empty( $certificate_pem ) ) {
@@ -3106,6 +3116,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		}
 
 		// Set appropriate file permissions
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod -- restrictive permissions on the plugin's own certificate/key/config file; direct chmod is required and reliable here.
 		chmod( $certificate_file, 0600 );
 
 		// Check if key file exists from previous step
@@ -3202,6 +3213,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		$api_url = 'https://apple-pay-gateway.apple.com/paymentservices/paymentSession';
 		
 		// Use cURL for certificate-based authentication
+		// phpcs:disable WordPress.WP.AlternativeFunctions -- Apple Pay merchant/session validation requires client-certificate (mutual TLS) auth via CURLOPT_SSLCERT/SSLKEY, which the WordPress HTTP API (wp_remote_*) does not support.
 		$ch = curl_init();
 		curl_setopt( $ch, CURLOPT_URL, $api_url );
 		curl_setopt( $ch, CURLOPT_POST, true );
@@ -3219,6 +3231,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 		$curl_error = curl_error( $ch );
 		curl_close( $ch );
+		// phpcs:enable WordPress.WP.AlternativeFunctions
 
 		if ( ! empty( $curl_error ) ) {
 			wp_send_json_error( [ 
@@ -3270,6 +3283,7 @@ class WC_Gateway_Checkout_Com_Apple_Pay extends WC_Payment_Gateway {
 		// Only write if file doesn't exist or doesn't have our rule
 		if ( ! file_exists( $htaccess_file ) || strpos( file_get_contents( $htaccess_file ), 'apple-developer-merchantid-domain-association' ) === false ) {
 			file_put_contents( $htaccess_file, $htaccess_content );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod -- restrictive permissions on the plugin's own certificate/key/config file; direct chmod is required and reliable here.
 			chmod( $htaccess_file, 0644 );
 		}
 		
