@@ -181,6 +181,19 @@ http://example.com/?wc-api=wc_checkoutcom_webhook
 After the plugin has been configured, customers will be able to choose Checkout.com as a valid payment method.
 
 == Changelog ==
+v5.1.4.3 3rd September 2026
+Flow declined-payment fixes
+- Fixed a lockout where retrying a declined Flow payment (e.g. a subscription renewal) was silently skipped and the order was strandedon-holdwith a false "Payment authorized" note — retries now process correctly, while genuine duplicates and already-paid orders remain protected from double charging.
+- Declined payment IDs are no longer stored on the order's primary payment-ID field (which caused the above).
+- Fixed a fatal error when a declined payment was processed fromadmin "Retry Renewal Payment", WP-CLI, or cron.
+
+Security & hardening
+- Apple Pay:the merchant-identity private key directory is now protected and its file is no longer exposed via a public URL.
+- Site-root.htaccessfor.well-knownis now written safely using WordPress's native marker method.
+- Removed bundled debug scripts from the package.
+- Settings screen no longer shows a blocking pop-up on a fresh install with no keys (inline notice instead).
+- The"File Logging: No"setting is now respected — the plugin no longer writes logs when logging is disabled.
+
 v5.1.4 8th July 2026
 - **[Fixes]**:
 - Live subscriptions:Fixed a Live-only issue where the secret key was read from the wrong setting, causing a 401 when saving the card source. New subscriptions on Live now correctly store the source ID so their first renewal succeeds.
