@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Checkout.com Payment Gateway 5.1.4\n"
+"Project-Id-Version: Checkout.com Payment Gateway 5.1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-gateway-checkout-com\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-08T08:27:13+00:00\n"
+"POT-Creation-Date: 2026-08-06T11:04:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: checkout-com-unified-payments-api\n"
@@ -540,9 +540,9 @@ msgstr ""
 #: includes/class-wc-gateway-checkout-com-apple-pay.php:2890
 #: includes/class-wc-gateway-checkout-com-apple-pay.php:3021
 #: includes/class-wc-gateway-checkout-com-apple-pay.php:3137
-#: woocommerce-gateway-checkout-com.php:2226
-#: woocommerce-gateway-checkout-com.php:2344
-#: woocommerce-gateway-checkout-com.php:2414
+#: woocommerce-gateway-checkout-com.php:2247
+#: woocommerce-gateway-checkout-com.php:2365
+#: woocommerce-gateway-checkout-com.php:2435
 msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
@@ -572,7 +572,7 @@ msgstr ""
 
 #: flow-integration/class-wc-gateway-checkout-com-flow.php:7700
 #: flow-integration/class-wc-gateway-checkout-com-flow.php:9476
-#: woocommerce-gateway-checkout-com.php:2156
+#: woocommerce-gateway-checkout-com.php:2177
 msgid "WooCommerce not available."
 msgstr ""
 
@@ -591,7 +591,7 @@ msgstr ""
 
 #: flow-integration/class-wc-gateway-checkout-com-flow.php:7811
 #: flow-integration/class-wc-gateway-checkout-com-flow.php:9483
-#: woocommerce-gateway-checkout-com.php:2163
+#: woocommerce-gateway-checkout-com.php:2184
 msgid "Checkout class not available."
 msgstr ""
 
@@ -1893,7 +1893,7 @@ msgid "Please enter a valid cvv code"
 msgstr ""
 
 #: includes/class-wc-gateway-checkout-com-cards.php:299
-#: woocommerce-gateway-checkout-com.php:754
+#: woocommerce-gateway-checkout-com.php:775
 msgid "Settings"
 msgstr ""
 
@@ -3978,214 +3978,214 @@ msgstr ""
 msgid "Your rights regarding the above mandate are explained in a statement that you can obtain from your bank."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:487
-#: woocommerce-gateway-checkout-com.php:520
-#: woocommerce-gateway-checkout-com.php:553
-#: woocommerce-gateway-checkout-com.php:585
-#: woocommerce-gateway-checkout-com.php:615
-#: woocommerce-gateway-checkout-com.php:645
-#: woocommerce-gateway-checkout-com.php:675
+#: woocommerce-gateway-checkout-com.php:508
+#: woocommerce-gateway-checkout-com.php:541
+#: woocommerce-gateway-checkout-com.php:574
+#: woocommerce-gateway-checkout-com.php:606
+#: woocommerce-gateway-checkout-com.php:636
+#: woocommerce-gateway-checkout-com.php:666
+#: woocommerce-gateway-checkout-com.php:696
 msgid "Permission denied."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:494
-#: woocommerce-gateway-checkout-com.php:527
-#: woocommerce-gateway-checkout-com.php:560
-#: woocommerce-gateway-checkout-com.php:592
-#: woocommerce-gateway-checkout-com.php:622
-#: woocommerce-gateway-checkout-com.php:652
-#: woocommerce-gateway-checkout-com.php:682
+#: woocommerce-gateway-checkout-com.php:515
+#: woocommerce-gateway-checkout-com.php:548
+#: woocommerce-gateway-checkout-com.php:581
+#: woocommerce-gateway-checkout-com.php:613
+#: woocommerce-gateway-checkout-com.php:643
+#: woocommerce-gateway-checkout-com.php:673
+#: woocommerce-gateway-checkout-com.php:703
 msgid "Apple Pay gateway class not found."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:770
-#: woocommerce-gateway-checkout-com.php:792
+#: woocommerce-gateway-checkout-com.php:791
+#: woocommerce-gateway-checkout-com.php:813
 msgctxt "Order status"
 msgid "Suspected Fraud"
 msgstr ""
 
 #. translators: %s: number of orders
-#: woocommerce-gateway-checkout-com.php:776
+#: woocommerce-gateway-checkout-com.php:797
 msgid "Suspected Fraud <span class=\"count\">(%s)</span>"
 msgid_plural "Suspected Frauds <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: woocommerce-gateway-checkout-com.php:820
+#: woocommerce-gateway-checkout-com.php:841
 msgid "Please enter a valid cvv."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:900
+#: woocommerce-gateway-checkout-com.php:921
 msgid "Billing email is required for Flow payments to work properly."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:910
+#: woocommerce-gateway-checkout-com.php:931
 msgid "Complete billing address is required for Flow payments to work properly."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:920
-#: woocommerce-gateway-checkout-com.php:946
+#: woocommerce-gateway-checkout-com.php:941
+#: woocommerce-gateway-checkout-com.php:967
 msgid "Order Creation Blocked"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:921
+#: woocommerce-gateway-checkout-com.php:942
 msgid "Checkout.com Flow:"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:921
+#: woocommerce-gateway-checkout-com.php:942
 msgid "Cannot create order with missing required information."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:927
+#: woocommerce-gateway-checkout-com.php:948
 msgid "Please:"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:929
+#: woocommerce-gateway-checkout-com.php:950
 msgid "Go back to the order form"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:930
+#: woocommerce-gateway-checkout-com.php:951
 msgid "Add the missing billing email and address"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:931
+#: woocommerce-gateway-checkout-com.php:952
 msgid "Try creating the order again"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:933
+#: woocommerce-gateway-checkout-com.php:954
 msgid "Go Back"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1098
+#: woocommerce-gateway-checkout-com.php:1119
 msgid "Manual orders require a valid billing email address for Flow payments to work properly. Please add a billing email to this order."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1099
-#: woocommerce-gateway-checkout-com.php:1109
+#: woocommerce-gateway-checkout-com.php:1120
+#: woocommerce-gateway-checkout-com.php:1130
 msgid "Edit Order"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1108
+#: woocommerce-gateway-checkout-com.php:1129
 msgid "Manual orders require a complete billing address for Flow payments to work properly. Please add billing address details to this order."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1185
+#: woocommerce-gateway-checkout-com.php:1206
 msgid "An error occurred while fetching the webhooks. Please try again."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1186
+#: woocommerce-gateway-checkout-com.php:1207
 msgid "An error occurred while registering the webhook. Please try again."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1598
+#: woocommerce-gateway-checkout-com.php:1619
 msgid "Please fill in the required fields to continue with payment."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1601
+#: woocommerce-gateway-checkout-com.php:1622
 msgid "Email"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1602
+#: woocommerce-gateway-checkout-com.php:1623
 msgid "Email (invalid format)"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1603
+#: woocommerce-gateway-checkout-com.php:1624
 msgid "First Name"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1604
+#: woocommerce-gateway-checkout-com.php:1625
 msgid "Last Name"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1605
+#: woocommerce-gateway-checkout-com.php:1626
 msgid "Street Address"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1606
+#: woocommerce-gateway-checkout-com.php:1627
 msgid "City"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1607
+#: woocommerce-gateway-checkout-com.php:1628
 msgid "Country"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1608
+#: woocommerce-gateway-checkout-com.php:1629
 msgid "State/Province"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1609
+#: woocommerce-gateway-checkout-com.php:1630
 msgid "Postcode/ZIP"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1610
+#: woocommerce-gateway-checkout-com.php:1631
 msgid "Missing field:"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1611
+#: woocommerce-gateway-checkout-com.php:1632
 msgid "Missing fields:"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1612
+#: woocommerce-gateway-checkout-com.php:1633
 msgid "All fields are complete"
 msgstr ""
 
 #. translators: %s: Action id.
-#: woocommerce-gateway-checkout-com.php:1779
+#: woocommerce-gateway-checkout-com.php:1800
 msgid "Checkout.com Payment Captured from Admin - Action ID : %s"
 msgstr ""
 
 #. translators: %s: Action id.
-#: woocommerce-gateway-checkout-com.php:1806
+#: woocommerce-gateway-checkout-com.php:1827
 msgid "Checkout.com Payment Voided from Admin - Action ID : %s"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1818
+#: woocommerce-gateway-checkout-com.php:1839
 msgid "An error has occurred."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:1838
+#: woocommerce-gateway-checkout-com.php:1859
 msgid "Fawry reference number: "
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2057
-#: woocommerce-gateway-checkout-com.php:2082
-#: woocommerce-gateway-checkout-com.php:2107
+#: woocommerce-gateway-checkout-com.php:2078
+#: woocommerce-gateway-checkout-com.php:2103
+#: woocommerce-gateway-checkout-com.php:2128
 msgid "Flow gateway class not found."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2187
+#: woocommerce-gateway-checkout-com.php:2208
 msgid "An error occurred during checkout validation. Please refresh and try again."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2208
+#: woocommerce-gateway-checkout-com.php:2229
 msgid "Validation successful"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2212
+#: woocommerce-gateway-checkout-com.php:2233
 msgid "An unexpected error occurred. Please refresh and try again."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2234
+#: woocommerce-gateway-checkout-com.php:2255
 msgid "Session ID is required"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2240
+#: woocommerce-gateway-checkout-com.php:2261
 msgid "Invalid session ID format."
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2260
+#: woocommerce-gateway-checkout-com.php:2281
 msgid "Payment gateway not properly configured"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2283
+#: woocommerce-gateway-checkout-com.php:2304
 msgid "Could not retrieve payment session"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2305
+#: woocommerce-gateway-checkout-com.php:2326
 msgid "Payment data not found"
 msgstr ""
 
-#: woocommerce-gateway-checkout-com.php:2309
+#: woocommerce-gateway-checkout-com.php:2330
 msgid "An error occurred while processing the payment session"
 msgstr ""
 
