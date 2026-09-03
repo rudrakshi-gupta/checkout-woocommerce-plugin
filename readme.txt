@@ -194,6 +194,14 @@ Security & hardening
 - Settings screen no longer shows a blocking pop-up on a fresh install with no keys (inline notice instead).
 - The"File Logging: No"setting is now respected — the plugin no longer writes logs when logging is disabled.
 
+v5.1.4.2 6th Aug 2026
+- Fixed settings‑sync DB errors—cko_update_raw_option()no longer throws duplicate‑key errors on save (switched to an atomicINSERT … ON DUPLICATE KEY UPDATEupsert). This was blocking merchants from upgrading.
+- Fixed "Change payment method" for subscriptions— Flow is no longer hidden on theView Subscriptionpage, so customers can update their card again (regression from the 5.1.3.7 £0 hide).
+- Fixed Flow checkout stuck loading— renamed the internalshowErrorhelper tockoFlowShowErrorso a third‑party inline script declaring a globalshowError(common geolocation snippet) can no longer collide and abort Flow.
+- Fixed Monolog conflict— bundled Monolog is now namespace‑scoped (CheckoutComWC\Vendor\…) so it won't clash with other plugins/themes that ship their own Monolog.
+- Fixed Checkout.com not appearing on the "Pay for order" page— the gateway is no longer hidden on order‑pay (admin/MOTO orders, payment links, failed‑payment retries).
+- Fixed missing Pay button on order‑pay in "no billing address" mode— Flow now reads the email from the order, so it mounts correctly instead of stalling on "Missing field: Email".
+
 v5.1.4 8th July 2026
 - **[Fixes]**:
 - Live subscriptions:Fixed a Live-only issue where the secret key was read from the wrong setting, causing a 401 when saving the card source. New subscriptions on Live now correctly store the source ID so their first renewal succeeds.
