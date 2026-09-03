@@ -118,14 +118,16 @@ class WC_Checkout_Com_Webhook_Queue {
 		// CRITICAL: Check for duplicate webhook before queuing (prevent duplicate queue entries)
 		// Check if same payment_id + webhook_type combination already exists and is unprocessed
 		$existing_query = $wpdb->prepare(
-			"SELECT id FROM {$table_name} 
-			WHERE payment_id = %s 
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$table_name} = $wpdb->prefix . 'cko_pending_webhooks' (internal, not user input); %i requires WP 6.2, plugin min is WP 5.0.
+			"SELECT id FROM {$table_name}
+			WHERE payment_id = %s
 			AND webhook_type = %s 
 			AND processed_at IS NULL 
 			LIMIT 1",
 			$payment_id,
 			$webhook_type
 		);
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $existing_query is built with $wpdb->prepare() directly above.
 		$existing_webhook = $wpdb->get_var( $existing_query );
 
 		if ( $existing_webhook ) {
@@ -235,9 +237,11 @@ class WC_Checkout_Com_Webhook_Queue {
 				created_at ASC";
 
 		if ( ! empty( $where_values ) ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query is an internal template ({$table_name} from $wpdb->prefix, {$where_clause} is only %s placeholders); values passed to prepare().
 			$query = $wpdb->prepare( $query, $where_values );
 		}
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $query is prepared above; conditions guarantee $where_values is non-empty.
 		$results = $wpdb->get_results( $query );
 
 		return $results ? $results : array();
@@ -449,10 +453,11 @@ class WC_Checkout_Com_Webhook_Queue {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
-		$cutoff_date = date( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+		$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 		$deleted = $wpdb->query(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$table_name} = $wpdb->prefix . 'cko_pending_webhooks' (internal, not user input); %i requires WP 6.2, plugin min is WP 5.0.
 				"DELETE FROM {$table_name} WHERE processed_at IS NOT NULL AND processed_at < %s",
 				$cutoff_date
 			)
@@ -475,10 +480,11 @@ class WC_Checkout_Com_Webhook_Queue {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
-		$cutoff_date = date( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+		$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 		$deleted = $wpdb->query(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$table_name} = $wpdb->prefix . 'cko_pending_webhooks' (internal, not user input); %i requires WP 6.2, plugin min is WP 5.0.
 				"DELETE FROM {$table_name} WHERE processed_at IS NULL AND created_at < %s",
 				$cutoff_date
 			)

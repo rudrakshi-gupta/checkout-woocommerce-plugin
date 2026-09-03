@@ -243,6 +243,7 @@ class WC_Checkout_Com_Webhook {
 				
 				$order->add_order_note(
 					sprintf(
+						/* translators: %s: Checkout.com payment ID. */
 						__( 'Secondary payment authorized (multi-tab). Payment ID: %s. Waiting for capture to determine primary payment.', 'checkout-com-unified-payments-api' ),
 						$payment_id
 					)
@@ -463,7 +464,8 @@ class WC_Checkout_Com_Webhook {
 		}
 
 		$payment_id = $webhook_data->id;
-		$order->add_order_note( sprintf( __( 'Checkout.com Card verified webhook received - Payment ID: %s, Action ID: %s', 'checkout-com-unified-payments-api' ), $payment_id, $action_id ) );
+		/* translators: 1: Checkout.com payment ID, 2: Checkout.com action ID. */
+		$order->add_order_note( sprintf( __( 'Checkout.com Card verified webhook received - Payment ID: %1$s, Action ID: %2$s', 'checkout-com-unified-payments-api' ), $payment_id, $action_id ) );
 		// Set action id as woo transaction id.
 		$order->set_transaction_id( $action_id );
 
@@ -686,6 +688,7 @@ class WC_Checkout_Com_Webhook {
 				
 				$order->add_order_note(
 					sprintf(
+						/* translators: %s: Checkout.com payment ID. */
 						__( 'First payment captured - this becomes the PRIMARY payment for this order. Payment ID: %s. All future refunds will use this payment.', 'checkout-com-unified-payments-api' ),
 						$payment_id
 					)
@@ -733,7 +736,8 @@ class WC_Checkout_Com_Webhook {
 		}
 
 		$formatted_amount = wc_price( WC_Checkoutcom_Utility::decimal_to_value( $amount, $order->get_currency() ), array( 'currency' => $order->get_currency() ) );
-		$order->add_order_note( sprintf( __( 'Checkout.com Payment Capture webhook received - Payment ID: %s, Amount: %s', 'checkout-com-unified-payments-api' ), $payment_id, $formatted_amount ) );
+		/* translators: 1: Checkout.com payment ID, 2: captured amount. */
+		$order->add_order_note( sprintf( __( 'Checkout.com Payment Capture webhook received - Payment ID: %1$s, Amount: %2$s', 'checkout-com-unified-payments-api' ), $payment_id, $formatted_amount ) );
 
 		// Set action id as woo transaction id.
 		$order->set_transaction_id( $action_id );
@@ -1037,7 +1041,8 @@ class WC_Checkout_Com_Webhook {
 			return true;
 		}
 
-		$order->add_order_note( sprintf( esc_html__( 'Checkout.com Payment Void webhook received - Payment ID: %s%s', 'checkout-com-unified-payments-api' ), $payment_id, $formatted_amount ? ', Amount: ' . $formatted_amount : '' ) );
+		/* translators: 1: Checkout.com payment ID, 2: optional ", Amount: X" suffix. */
+		$order->add_order_note( sprintf( esc_html__( 'Checkout.com Payment Void webhook received - Payment ID: %1$s%2$s', 'checkout-com-unified-payments-api' ), $payment_id, $formatted_amount ? ', Amount: ' . $formatted_amount : '' ) );
 
 		// Set action id as woo transaction id.
 		$order->set_transaction_id( $action_id );
@@ -1372,7 +1377,8 @@ class WC_Checkout_Com_Webhook {
 			
 			// If order is completed or processing, don't cancel - needs manual review
 			if ( in_array( $current_status, array( 'completed', 'processing' ), true ) ) {
-				$order->add_order_note( __( 'Cancel webhook received but order is already ' . $current_status . '. Manual review required.', 'checkout-com-unified-payments-api' ) );
+				// translators: %s: current order status.
+				$order->add_order_note( sprintf( __( 'Cancel webhook received but order is already %s. Manual review required.', 'checkout-com-unified-payments-api' ), $current_status ) );
 				WC_Checkoutcom_Utility::logger( 'WEBHOOK PROCESS: cancel_payment - Order already ' . $current_status . ', skipping status change to cancelled. Order ID: ' . $order_id );
 			} else {
 				$order->update_status( $status );
@@ -1545,7 +1551,8 @@ class WC_Checkout_Com_Webhook {
 			
 			$order->add_order_note(
 				sprintf(
-					__( 'Secondary payment attempt declined (multi-tab). Payment ID: %s, Session: %s, Reason: %s. Order status unchanged - primary payment may still complete.', 'checkout-com-unified-payments-api' ),
+					/* translators: 1: Checkout.com payment ID, 2: payment session ID, 3: decline reason. */
+					__( 'Secondary payment attempt declined (multi-tab). Payment ID: %1$s, Session: %2$s, Reason: %3$s. Order status unchanged - primary payment may still complete.', 'checkout-com-unified-payments-api' ),
 					$payment_id,
 					$session_id_for_note ? $session_id_for_note : 'unknown',
 					$response_summary
@@ -1608,7 +1615,8 @@ class WC_Checkout_Com_Webhook {
 		// If order is already in a successful state, don't downgrade to failed
 		// This can happen if a successful payment was processed and a stale decline webhook arrives
 		if ( in_array( $current_status, array( 'completed', 'processing', 'on-hold' ), true ) ) {
-			$order->add_order_note( __( 'Decline webhook received but order is already ' . $current_status . '. This may be a stale webhook for a previous failed attempt. Status unchanged.', 'checkout-com-unified-payments-api' ) );
+			// translators: %s: current order status.
+			$order->add_order_note( sprintf( __( 'Decline webhook received but order is already %s. This may be a stale webhook for a previous failed attempt. Status unchanged.', 'checkout-com-unified-payments-api' ), $current_status ) );
 			WC_Checkoutcom_Utility::logger( 'WEBHOOK PROCESS: decline_payment - Order already ' . $current_status . ', skipping status change to failed. Order ID: ' . $order_id );
 		} else {
 			$order->update_status( $status );

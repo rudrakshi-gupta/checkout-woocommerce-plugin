@@ -5,12 +5,13 @@
  * Description: Extends WooCommerce by Adding the Checkout.com Gateway.
  * Author: Checkout.com
  * Author URI: https://www.checkout.com/
- * Version: 5.1.4.2
+ * Version: 5.1.4.3
  * Requires at least: 5.0
- * Tested up to: 6.7.0
+ * Tested up to: 7.1
  * WC requires at least: 3.0
- * WC tested up to: 8.3.1
+ * WC tested up to: 11.0.1
  * Requires PHP: 7.3
+ * Requires Plugins: woocommerce
  * Text Domain: checkout-com-unified-payments-api
  * Domain Path: /languages
  * License: GPL v2 or later
@@ -317,7 +318,7 @@ add_action( 'woocommerce_new_order', 'cko_update_order_id_in_session', 5 );
  * Constants.
  */
 // NOSONAR (S1313): "5.1.3.7" is the plugin version (WordPress semver-style), not a hardcoded IP address.
-define( 'WC_CHECKOUTCOM_PLUGIN_VERSION', '5.1.4.2' ); // NOSONAR
+define( 'WC_CHECKOUTCOM_PLUGIN_VERSION', '5.1.4.3' ); // NOSONAR
 define( 'WC_CHECKOUTCOM_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
 define( 'WC_CHECKOUTCOM_PLUGIN_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 
@@ -985,8 +986,9 @@ function cko_check_incomplete_orders() {
 	
 	// Get order ID from URL
 	$order_id = 0;
-	if ( isset( $_GET['post'] ) && get_post_type( $_GET['post'] ) === 'shop_order' ) {
-		$order_id = intval( $_GET['post'] );
+	$posted_post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
+	if ( $posted_post_id && get_post_type( $posted_post_id ) === 'shop_order' ) {
+		$order_id = $posted_post_id;
 	}
 	
 	if ( ! $order_id ) {
@@ -1101,8 +1103,9 @@ function cko_show_validation_notices() {
 	global $post;
 	$order_id = 0;
 	
-	if ( isset( $_GET['post'] ) && get_post_type( $_GET['post'] ) === 'shop_order' ) {
-		$order_id = intval( $_GET['post'] );
+	$posted_post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
+	if ( $posted_post_id && get_post_type( $posted_post_id ) === 'shop_order' ) {
+		$order_id = $posted_post_id;
 	} elseif ( $post && $post->post_type === 'shop_order' ) {
 		$order_id = $post->ID;
 	}
@@ -1631,7 +1634,7 @@ function cko_enqueue_frontend_assets() {
 			'missing_field'         => esc_html__( 'Missing field:', 'checkout-com-unified-payments-api' ),
 			'missing_fields'        => esc_html__( 'Missing fields:', 'checkout-com-unified-payments-api' ),
 			'all_fields_complete'   => esc_html__( 'All fields are complete', 'checkout-com-unified-payments-api' ),
-			'terms_required'        => esc_html__( 'Please read and accept the terms and conditions to proceed with your order.', 'woocommerce' ),
+			'terms_required'        => esc_html__( 'Please read and accept the terms and conditions to proceed with your order.', 'checkout-com-unified-payments-api' ),
 		),
 		// Preserve card details on checkout updates (coupon apply, address change)
 		'preserve_card_on_update' => ( isset( $flow_settings['flow_preserve_card_on_update'] ) && 'yes' === $flow_settings['flow_preserve_card_on_update'] ),
@@ -2189,7 +2192,7 @@ function cko_validate_checkout() {
 	$nonce_value = wc_get_var( $_REQUEST['woocommerce-process-checkout-nonce'], wc_get_var( $_REQUEST['_wpnonce'], '' ) ); // phpcs:ignore
 	if ( empty( $nonce_value ) || ! wp_verify_nonce( $nonce_value, 'woocommerce-process_checkout' ) ) {
 			WC_Checkoutcom_Utility::logger( '[VALIDATE CHECKOUT] ERROR: Invalid nonce' );
-		wp_send_json_error( array( 'message' => __( 'Session expired. Please refresh.', 'woocommerce' ) ) );
+		wp_send_json_error( array( 'message' => __( 'Session expired. Please refresh.', 'checkout-com-unified-payments-api' ) ) );
 			return;
 	}
 

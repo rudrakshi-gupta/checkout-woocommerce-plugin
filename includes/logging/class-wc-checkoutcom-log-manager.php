@@ -137,7 +137,7 @@ class WC_Checkoutcom_Log_Manager {
      * @return string
      */
     public function get_log_file_path($log_type = 'gateway') {
-        $filename = "checkout-com-{$log_type}-" . date('Y-m-d') . '.log';
+        $filename = "checkout-com-{$log_type}-" . gmdate('Y-m-d') . '.log';
         return $this->log_directory . $filename;
     }
 
@@ -166,10 +166,11 @@ class WC_Checkoutcom_Log_Manager {
             return false;
         }
         
-        $timestamp = date('Y-m-d-H-i-s');
+        $timestamp = gmdate('Y-m-d-H-i-s');
         $rotated_file = str_replace('.log', "-{$timestamp}.log", $log_file_path);
         
         // Move current log to rotated file
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- atomic same-directory log rotation; WP_Filesystem::move offers no benefit and adds credential-prompt risk.
         if (rename($log_file_path, $rotated_file)) {
             // Compress the rotated file
             $this->compress_log_file($rotated_file);
@@ -196,6 +197,7 @@ class WC_Checkoutcom_Log_Manager {
         
         $gz_file = $file_path . '.gz';
         
+        // phpcs:disable WordPress.WP.AlternativeFunctions -- streaming gzip compression of a log file; WP_Filesystem provides no streaming/gzip API.
         $fp_in = fopen($file_path, 'rb');
         $fp_out = gzopen($gz_file, 'wb9');
         
@@ -209,9 +211,10 @@ class WC_Checkoutcom_Log_Manager {
         
         fclose($fp_in);
         gzclose($fp_out);
+        // phpcs:enable WordPress.WP.AlternativeFunctions
         
         // Remove original file after successful compression
-        unlink($file_path);
+        wp_delete_file($file_path);
         
         return true;
     }
@@ -237,7 +240,7 @@ class WC_Checkoutcom_Log_Manager {
         if (count($files) > $this->max_files) {
             $files_to_remove = array_slice($files, $this->max_files);
             foreach ($files_to_remove as $file) {
-                unlink($file);
+                wp_delete_file($file);
             }
         }
     }
@@ -255,7 +258,8 @@ class WC_Checkoutcom_Log_Manager {
         foreach ($files as $file) {
             if (filemtime($file) < $cutoff_time) {
                 $file_size = filesize($file);
-                if (unlink($file)) {
+                wp_delete_file($file);
+                if (!file_exists($file)) {
                     $deleted_count++;
                     $deleted_size += $file_size;
                 }
@@ -348,7 +352,7 @@ class WC_Checkoutcom_Log_Manager {
         $files = glob($this->log_directory . 'checkout-com-*.log*');
         
         $export_data = [
-            'export_timestamp' => date('Y-m-d H:i:s'),
+            'export_timestamp' => gmdate('Y-m-d H:i:s'),
             'export_period_days' => $days,
             'files' => [],
         ];
@@ -365,7 +369,7 @@ class WC_Checkoutcom_Log_Manager {
                 $export_data['files'][] = [
                     'filename' => basename($file),
                     'size' => filesize($file),
-                    'modified' => date('Y-m-d H:i:s', filemtime($file)),
+                    'modified' => gmdate('Y-m-d H:i:s', filemtime($file)),
                     'content' => $content,
                 ];
             }
@@ -384,7 +388,8 @@ class WC_Checkoutcom_Log_Manager {
         $deleted_count = 0;
         
         foreach ($files as $file) {
-            if (unlink($file)) {
+            wp_delete_file($file);
+            if (!file_exists($file)) {
                 $deleted_count++;
             }
         }
